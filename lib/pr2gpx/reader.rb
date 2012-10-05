@@ -31,7 +31,18 @@ end
 
 class ReportsListReader < ReportReader
 	def each
-		puts 'ReportsListReader'
+		@source.scan %r{
+			\n\n(?<callsign>\w*)[ ]
+			(?<year>\d+)/(?<month>\d+)/(?<day>\d+)[ ](?<hour>\d+):(?<minute>\d+)[ ]
+			(?<latitude>[^\n]*)[ ]
+			(?<longitude>[^\n]*)\n
+			Comment:[ ](?<comment>[^\n]*)
+		}xm do |callsign, year, month, day, hour, minute, latitude, longitude, comment|
+			yield PositionReport.new callsign,
+									 DateTime.new(year.to_i, month.to_i, day.to_i, hour.to_i, minute.to_i, 0),
+									 Position.new(latitude, longitude),
+									 comment
+		end
 	end
 end
 
