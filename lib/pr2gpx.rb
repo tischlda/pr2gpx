@@ -4,9 +4,9 @@ require 'pr2gpx/parser'
 parser = ReportParser.new
 		
 stations = Hash.new
-
+puts ARG[0]
 Dir
-	.glob(["c:/programdata/airmail/Outbox/**/*.msg"])
+	.glob(ARGV[1])
 	.map { |filename| File.open filename do |file| file.read() end }
 	.each do |content|
 		reports = parser.parse(content)

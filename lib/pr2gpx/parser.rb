@@ -1,7 +1,20 @@
 require 'date'
 
 PositionReport = Struct.new "PositionReport", :callsign, :date, :position, :comment
-Position = Struct.new "Position", :latitude, :longitude
+
+class Position
+	attr_reader :latitude, :longitude 
+
+	def initialize latitude, longitude
+		@latitude = latitude
+		@longitude = longitude
+	end
+
+	def == other
+		self.latitude == other.latitude and
+		self.longitude == other.longitude 
+	end
+end
 
 class ReportParser
 	def initialize
