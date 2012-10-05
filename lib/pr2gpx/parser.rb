@@ -6,13 +6,19 @@ class Position
 	attr_reader :latitude, :longitude 
 
 	def initialize latitude, longitude
-		@latitude = latitude
-		@longitude = longitude
+		@latitude = parse_angle latitude
+		@longitude = parse_angle longitude
 	end
 
 	def == other
 		self.latitude == other.latitude and
 		self.longitude == other.longitude 
+	end
+
+	def parse_angle value
+		if /(?<degrees>\d+)-(?<minutes>\d+\.\d+)(?<sign>[NSWE])/ =~ value
+			(degrees.to_f + minutes.to_f / 60) * ((sign == 'S' or sign == 'W') ? -1 : 1)
+		end
 	end
 end
 

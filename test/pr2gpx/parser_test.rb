@@ -208,3 +208,20 @@ EOS
 		expected_reports.each { |expected_report| assert_includes results, expected_report }
 	end
 end
+
+class TestPosition < MiniTest::Unit::TestCase
+	def test_that_position_can_be_created_from_strings
+		cases = {
+			['0-0.0N', '0-0.0E'] => [0.0, 0.0],
+			['12-34.5N', '123-45.6E'] => [12.575, 123.76],
+			['12-34.5S', '123-45.6W'] => [-12.575, -123.76]
+		}
+
+		cases.each do |input, expected_result|
+			position = Position.new input[0], input[1]
+
+			assert_equal expected_result[0], position.latitude
+			assert_equal expected_result[1], position.longitude
+		end
+	end
+end
