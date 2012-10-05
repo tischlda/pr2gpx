@@ -4,17 +4,12 @@ PositionReport = Struct.new "PositionReport", :callsign, :date, :position, :comm
 Position = Struct.new "Position", :latitude, :longitude
 
 class ReportParser
+	def initialize
+		@parsers = [NearbyStationsParser.new, ReportsListParser.new, OutboundReportParser.new]
+	end
+
 	def parse input
-		parser = case input
-			when /List of users nearby/
-				NearbyStationsParser.new
-			when /Automated Reply Message from Winlink 2000 Position Report Processor/
-				ReportsListParser.new
-			when /Subject: POSITION REPORT/
-				OutboundReportParser.new
-			else
-				nil
-		end
+		parser = @parsers.find { |parser| parser.can_parse? input }
 
 		if parser
 			parser.parse input
