@@ -29,8 +29,8 @@ EOS
 										  Position.new('17-40.83S', '177-23.18E'),
 										  'Vuda Point Marina / Viti Levu / Fiji'
     
-    reader = OutboundReportReader.new input
-    results = reader.collect
+    reader = OutboundReportReader.new
+    results = reader.parse(input).collect
 
     assert_equal 1, results.count
     assert_includes results, expected_report
@@ -54,8 +54,8 @@ TIME: 2012/10/02 06:22
 COMMENT: Vuda Point Marina / Viti Levu / Fiji
 EOS
 
-    reader = OutboundReportReader.new input
-    results = reader.collect
+    reader = OutboundReportReader.new
+    results = reader.parse(input).collect
 
     assert_equal results.count, 0
   end
@@ -63,8 +63,8 @@ EOS
   def test_that_empty_report_gets_ignored
     input = ""
 
-    reader = OutboundReportReader.new input
-    results = reader.collect
+    reader = OutboundReportReader.new
+    results = reader.parse(input).collect
 
     assert_equal results.count, 0
   end
@@ -120,8 +120,8 @@ EOS
                          Position.new('23-39.64S', '178-54.46W'),
                          'north minerva at anchor, caught a tuna today')]
     
-    reader = ReportsListReader.new input
-    results = reader.collect
+    reader = ReportsListReader.new
+    results = reader.parse(input).collect
 
     assert_equal 3, expected_reports.count
     expected_reports.each { |expected_report| assert_includes results, expected_report }
@@ -172,8 +172,8 @@ EOS
                          Position.new('17-36.12S', '177-25.44E'),
                          'A l\'ancre a Lautoka')]
     
-    reader = NearbyStationsReader.new input
-    results = reader.collect
+    reader = NearbyStationsReader.new
+    results = reader.parse(input).collect
 
     assert_equal 3, expected_reports.count
     expected_reports.each { |expected_report| assert_includes results, expected_report }
