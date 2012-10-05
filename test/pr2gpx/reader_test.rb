@@ -123,7 +123,59 @@ EOS
     reader = ReportsListReader.new input
     results = reader.collect
 
-    assert_equal 3, results.count
+    assert_equal 3, expected_reports.count
+    expected_reports.each { |expected_report| assert_includes results, expected_report }
+  end
+end
+
+class TestNearbyStationsReader < MiniTest::Unit::TestCase
+  def test_that_report_can_be_read
+    input = <<EOS
+X-Received: from WL2K(WL2K-2.7.3.5-B2FWIHJM$/) by OE1TDA with telnet/FBB-2/KHz id 0X0W40R0QTXT; 13 Sep 2012 21:12:41 -0000
+X-From: SERVICE@WL2K
+X-WL2K-MBO: WL2K
+To: OE1TDA
+Subject: INQUIRY: WL2K_NEARBY
+X-WL2K-Date: 2012/09/13 21:12
+Date: 13 Sep 2012 21:12:00 -0000
+X-MID: 0X0W40R0QTXT
+X-System-Context: HAM
+Message-Id: <1332cdbd0b3cd570.0X0W40R0QTXT@airmail2000.com>
+X-Type: email; inmsg
+X-Via: HAM.Telnet.WL2K
+X-Date: 2012/09/13 21:12:42
+
+List of users nearby OE1TDA
+ Postion: 17-05.02S  177-16.60E  posted at: 9/10/2012 10:18:00 PM
+(NOTE: All dates in UTC, distance in nautical miles and bearings true great circle.)
+
+Winlink 2000 Nearby Mobile Users
+ (Only the latest report for each call within the past 10 days is listed.
+
+CALL     Dist(nm @ DegT)        POSITION             REPORTED            COMMENT
+OE1TDA         0.0 @ 000   17-05.02S 177-16.60E  2012/09/10 22:18  Narewa Bay / Naviti / Fiji
+HB9TSD        16.2 @ 213   17-18.59S 177-07.36E  2012/09/12 02:35  Green Coral vor Anker Yaloba Bay, Yasawas, Fiji
+VE2CCJ        32.2 @ 165   17-36.12S 177-25.44E  2012/09/12 21:07  A l'ancre a Lautoka
+EOS
+
+    expected_reports = [
+            PositionReport.new('OE1TDA',
+                         DateTime.new(2012, 9, 10, 22, 18, 0),
+                         Position.new('17-05.02S', '177-16.60E'),
+                         'Narewa Bay / Naviti / Fiji'),
+            PositionReport.new('HB9TSD',
+                         DateTime.new(2012, 9, 12, 2, 35, 0),
+                         Position.new('17-18.59S', '177-07.36E'),
+                         'Green Coral vor Anker Yaloba Bay, Yasawas, Fiji'),
+            PositionReport.new('VE2CCJ',
+                         DateTime.new(2012, 9, 12, 21, 07, 0),
+                         Position.new('17-36.12S', '177-25.44E'),
+                         'A l\'ancre a Lautoka')]
+    
+    reader = NearbyStationsReader.new input
+    results = reader.collect
+
+    assert_equal 3, expected_reports.count
     expected_reports.each { |expected_report| assert_includes results, expected_report }
   end
 end

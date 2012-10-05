@@ -2,7 +2,7 @@ require 'nokogiri'
 require 'pr2gpx/reader'
 
 readers = Dir
-		.glob("c:/programdata/airmail/Outbox/**/*.msg")
+		.glob("c:/programdata/airmail/Inbox/Positions/*.msg")
 		.map { |filename| File.open filename do |file| file.read() end }
 		.map do |content|
 			case content
