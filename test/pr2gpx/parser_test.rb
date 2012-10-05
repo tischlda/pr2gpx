@@ -5,8 +5,8 @@ require 'date'
 require_relative '../../lib/pr2gpx/parser'
 
 class TestOutboundReportParser < MiniTest::Unit::TestCase
-  def test_that_report_can_be_parsed
-    input = <<EOS
+	def test_that_report_can_be_parsed
+		input = <<EOS
 X-To: QTH
 Subject: POSITION REPORT
 X-WL2K-Type: Position Report
@@ -24,20 +24,20 @@ LATITUDE: 17-40.83S
 LONGITUDE: 177-23.18E
 COMMENT: Vuda Point Marina / Viti Levu / Fiji
 EOS
-    expected_report = PositionReport.new 'OE1TDA',
-										  DateTime.new(2012, 10, 2, 6, 22, 0),
-										  Position.new('17-40.83S', '177-23.18E'),
-										  'Vuda Point Marina / Viti Levu / Fiji'
-    
-    parser = OutboundReportParser.new
-    results = parser.parse(input).collect
+		expected_report = PositionReport.new 'OE1TDA',
+										  	 DateTime.new(2012, 10, 2, 6, 22, 0),
+										  	 Position.new('17-40.83S', '177-23.18E'),
+											 'Vuda Point Marina / Viti Levu / Fiji'
+	
+		parser = OutboundReportParser.new
+		results = parser.parse(input).collect
 
-    assert_equal 1, results.count
-    assert_includes results, expected_report
-  end
+		assert_equal 1, results.count
+		assert_includes results, expected_report
+	end
 
-  def test_that_incomplete_report_gets_ignored
-    input = <<EOS
+	def test_that_incomplete_report_gets_ignored
+		input = <<EOS
 X-To: QTH
 Subject: POSITION REPORT
 X-WL2K-Type: Position Report
@@ -53,26 +53,25 @@ X-Date: 2012/10/02 06:22:56
 TIME: 2012/10/02 06:22
 COMMENT: Vuda Point Marina / Viti Levu / Fiji
 EOS
+		parser = OutboundReportParser.new
+		results = parser.parse(input).collect
 
-    parser = OutboundReportParser.new
-    results = parser.parse(input).collect
-
-    assert_equal results.count, 0
-  end
+		assert_equal results.count, 0
+	end
   
-  def test_that_empty_report_gets_ignored
-    input = ""
+	def test_that_empty_report_gets_ignored
+		input = ""
 
-    parser = OutboundReportParser.new
-    results = parser.parse(input).collect
+		parser = OutboundReportParser.new
+		results = parser.parse(input).collect
 
-    assert_equal results.count, 0
-  end
+		assert_equal results.count, 0
+	end
 end
 
 class TestReportsListParser < MiniTest::Unit::TestCase
-  def test_that_report_can_be_parsed
-    input = <<EOS
+	def test_that_report_can_be_parsed
+		input = <<EOS
 X-Received: from WL2K(WL2K-2.7.3.3-B2FWIHJM$/) by OE1TDA with telnet/FBB-2/KHz id 63OTFXZZIRPC; 22 May 2012 04:55:53 -0000
 X-From: SERVICE@System
 X-WL2K-MBO: System
@@ -106,31 +105,31 @@ Speed: 0.1 knots
 Course: 045T degrees
 EOS
 
-    expected_reports = [
-            PositionReport.new('HB9EWT',
-                         DateTime.new(2012, 5, 21, 19, 55, 0),
-                         Position.new('20-27.42S', '179-03.49W'),
-                         'underway to savusavu, fiji'),
-            PositionReport.new('HB9EWT',
-                         DateTime.new(2012, 5, 20, 17, 38, 0),
-                         Position.new('22-31.31S', '178-27.82W'),
-                         'underway to savusavu, fiji'),
-            PositionReport.new('HB9EWT',
-                         DateTime.new(2012, 5, 16, 4, 40, 0),
-                         Position.new('23-39.64S', '178-54.46W'),
-                         'north minerva at anchor, caught a tuna today')]
-    
-    parser = ReportsListParser.new
-    results = parser.parse(input).collect
+		expected_reports = [
+				PositionReport.new('HB9EWT',
+							 DateTime.new(2012, 5, 21, 19, 55, 0),
+							 Position.new('20-27.42S', '179-03.49W'),
+							 'underway to savusavu, fiji'),
+				PositionReport.new('HB9EWT',
+							 DateTime.new(2012, 5, 20, 17, 38, 0),
+							 Position.new('22-31.31S', '178-27.82W'),
+							 'underway to savusavu, fiji'),
+				PositionReport.new('HB9EWT',
+							 DateTime.new(2012, 5, 16, 4, 40, 0),
+							 Position.new('23-39.64S', '178-54.46W'),
+							 'north minerva at anchor, caught a tuna today')]
+		
+		parser = ReportsListParser.new
+		results = parser.parse(input).collect
 
-    assert_equal 3, expected_reports.count
-    expected_reports.each { |expected_report| assert_includes results, expected_report }
-  end
+		assert_equal 3, expected_reports.count
+		expected_reports.each { |expected_report| assert_includes results, expected_report }
+	end
 end
 
 class TestNearbyStationsParser < MiniTest::Unit::TestCase
-  def test_that_report_can_be_parsed
-    input = <<EOS
+    def test_that_report_can_be_parsed
+        input = <<EOS
 X-Received: from WL2K(WL2K-2.7.3.5-B2FWIHJM$/) by OE1TDA with telnet/FBB-2/KHz id 0X0W40R0QTXT; 13 Sep 2012 21:12:41 -0000
 X-From: SERVICE@WL2K
 X-WL2K-MBO: WL2K
@@ -158,24 +157,24 @@ HB9TSD        16.2 @ 213   17-18.59S 177-07.36E  2012/09/12 02:35  Green Coral v
 VE2CCJ        32.2 @ 165   17-36.12S 177-25.44E  2012/09/12 21:07  A l'ancre a Lautoka
 EOS
 
-    expected_reports = [
-            PositionReport.new('OE1TDA',
-                         DateTime.new(2012, 9, 10, 22, 18, 0),
-                         Position.new('17-05.02S', '177-16.60E'),
-                         'Narewa Bay / Naviti / Fiji'),
-            PositionReport.new('HB9TSD',
-                         DateTime.new(2012, 9, 12, 2, 35, 0),
-                         Position.new('17-18.59S', '177-07.36E'),
-                         'Green Coral vor Anker Yaloba Bay, Yasawas, Fiji'),
-            PositionReport.new('VE2CCJ',
-                         DateTime.new(2012, 9, 12, 21, 07, 0),
-                         Position.new('17-36.12S', '177-25.44E'),
-                         'A l\'ancre a Lautoka')]
-    
-    parser = NearbyStationsParser.new
-    results = parser.parse(input).collect
+		expected_reports = [
+				PositionReport.new('OE1TDA',
+							 DateTime.new(2012, 9, 10, 22, 18, 0),
+							 Position.new('17-05.02S', '177-16.60E'),
+							 'Narewa Bay / Naviti / Fiji'),
+				PositionReport.new('HB9TSD',
+							 DateTime.new(2012, 9, 12, 2, 35, 0),
+							 Position.new('17-18.59S', '177-07.36E'),
+							 'Green Coral vor Anker Yaloba Bay, Yasawas, Fiji'),
+				PositionReport.new('VE2CCJ',
+							 DateTime.new(2012, 9, 12, 21, 07, 0),
+							 Position.new('17-36.12S', '177-25.44E'),
+							 'A l\'ancre a Lautoka')]
+		
+		parser = NearbyStationsParser.new
+		results = parser.parse(input).collect
 
-    assert_equal 3, expected_reports.count
-    expected_reports.each { |expected_report| assert_includes results, expected_report }
-  end
+		assert_equal 3, expected_reports.count
+		expected_reports.each { |expected_report| assert_includes results, expected_report }
+	end
 end
