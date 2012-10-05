@@ -25,6 +25,10 @@ class ReportParser
 end
 
 class OutboundReportParser
+	def can_parse? input
+		/Subject: POSITION REPORT/ =~ input
+	end
+
 	def parse input
 		Enumerator.new do |e|
 			if %r{
@@ -45,6 +49,10 @@ class OutboundReportParser
 end
 
 class ReportsListParser
+	def can_parse? input
+		/Automated Reply Message from Winlink 2000 Position Report Processor/ =~ input
+	end
+
 	def parse input
 		Enumerator.new do |e|
 			input.scan %r{
@@ -64,6 +72,10 @@ class ReportsListParser
 end
 
 class NearbyStationsParser
+	def can_parse? input
+		/List of users nearby/ =~ input
+	end
+
 	def parse input
 		Enumerator.new do |e|
 			input.scan %r{^
