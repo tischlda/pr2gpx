@@ -1,7 +1,7 @@
 require 'nokogiri'
-require 'pr2gpx/reader'
+require 'pr2gpx/parser'
 
-reader = ReportReader.new
+parser = ReportParser.new
 		
 stations = Hash.new
 
@@ -9,7 +9,7 @@ Dir
 	.glob(["c:/programdata/airmail/Outbox/**/*.msg"])
 	.map { |filename| File.open filename do |file| file.read() end }
 	.each do |content|
-		reports = reader.parse(content)
+		reports = parser.parse(content)
 		if reports
 			reports.each do |report|
 				stations[report.callsign] = Hash.new unless stations.has_key? report.callsign

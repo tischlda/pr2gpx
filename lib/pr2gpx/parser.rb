@@ -3,28 +3,28 @@ require 'date'
 PositionReport = Struct.new "PositionReport", :callsign, :date, :position, :comment
 Position = Struct.new "Position", :latitude, :longitude
 
-class ReportReader
+class ReportParser
 	def parse input
-		reader = case input
+		parser = case input
 			when /List of users nearby/
-				NearbyStationsReader.new
+				NearbyStationsParser.new
 			when /Automated Reply Message from Winlink 2000 Position Report Processor/
-				ReportsListReader.new
+				ReportsListParser.new
 			when /Subject: POSITION REPORT/
-				OutboundReportReader.new
+				OutboundReportParser.new
 			else
 				nil
 		end
 
-		if reader
-			reader.parse input
+		if parser
+			parser.parse input
 		else
 			nil
 		end
 	end
 end
 
-class OutboundReportReader
+class OutboundReportParser
 	def parse input
 		Enumerator.new do |e|
 			if %r{
@@ -44,7 +44,7 @@ class OutboundReportReader
 	end
 end
 
-class ReportsListReader
+class ReportsListParser
 	def parse input
 		Enumerator.new do |e|
 			input.scan %r{
@@ -63,7 +63,7 @@ class ReportsListReader
 	end
 end
 
-class NearbyStationsReader
+class NearbyStationsParser
 	def parse input
 		Enumerator.new do |e|
 			input.scan %r{^

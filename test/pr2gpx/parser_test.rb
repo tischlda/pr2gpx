@@ -2,10 +2,10 @@ require 'minitest/autorun'
 require 'minitest/unit'
 require 'date'
 
-require_relative '../../lib/pr2gpx/reader'
+require_relative '../../lib/pr2gpx/parser'
 
-class TestOutboundReportReader < MiniTest::Unit::TestCase
-  def test_that_report_can_be_read
+class TestOutboundReportParser < MiniTest::Unit::TestCase
+  def test_that_report_can_be_parsed
     input = <<EOS
 X-To: QTH
 Subject: POSITION REPORT
@@ -29,8 +29,8 @@ EOS
 										  Position.new('17-40.83S', '177-23.18E'),
 										  'Vuda Point Marina / Viti Levu / Fiji'
     
-    reader = OutboundReportReader.new
-    results = reader.parse(input).collect
+    parser = OutboundReportParser.new
+    results = parser.parse(input).collect
 
     assert_equal 1, results.count
     assert_includes results, expected_report
@@ -54,8 +54,8 @@ TIME: 2012/10/02 06:22
 COMMENT: Vuda Point Marina / Viti Levu / Fiji
 EOS
 
-    reader = OutboundReportReader.new
-    results = reader.parse(input).collect
+    parser = OutboundReportParser.new
+    results = parser.parse(input).collect
 
     assert_equal results.count, 0
   end
@@ -63,15 +63,15 @@ EOS
   def test_that_empty_report_gets_ignored
     input = ""
 
-    reader = OutboundReportReader.new
-    results = reader.parse(input).collect
+    parser = OutboundReportParser.new
+    results = parser.parse(input).collect
 
     assert_equal results.count, 0
   end
 end
 
-class TestReportsListReader < MiniTest::Unit::TestCase
-  def test_that_report_can_be_read
+class TestReportsListParser < MiniTest::Unit::TestCase
+  def test_that_report_can_be_parsed
     input = <<EOS
 X-Received: from WL2K(WL2K-2.7.3.3-B2FWIHJM$/) by OE1TDA with telnet/FBB-2/KHz id 63OTFXZZIRPC; 22 May 2012 04:55:53 -0000
 X-From: SERVICE@System
@@ -120,16 +120,16 @@ EOS
                          Position.new('23-39.64S', '178-54.46W'),
                          'north minerva at anchor, caught a tuna today')]
     
-    reader = ReportsListReader.new
-    results = reader.parse(input).collect
+    parser = ReportsListParser.new
+    results = parser.parse(input).collect
 
     assert_equal 3, expected_reports.count
     expected_reports.each { |expected_report| assert_includes results, expected_report }
   end
 end
 
-class TestNearbyStationsReader < MiniTest::Unit::TestCase
-  def test_that_report_can_be_read
+class TestNearbyStationsParser < MiniTest::Unit::TestCase
+  def test_that_report_can_be_parsed
     input = <<EOS
 X-Received: from WL2K(WL2K-2.7.3.5-B2FWIHJM$/) by OE1TDA with telnet/FBB-2/KHz id 0X0W40R0QTXT; 13 Sep 2012 21:12:41 -0000
 X-From: SERVICE@WL2K
@@ -172,8 +172,8 @@ EOS
                          Position.new('17-36.12S', '177-25.44E'),
                          'A l\'ancre a Lautoka')]
     
-    reader = NearbyStationsReader.new
-    results = reader.parse(input).collect
+    parser = NearbyStationsParser.new
+    results = parser.parse(input).collect
 
     assert_equal 3, expected_reports.count
     expected_reports.each { |expected_report| assert_includes results, expected_report }
