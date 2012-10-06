@@ -187,7 +187,7 @@ EOS
 		refute @parser.can_parse? ''
 	end
 
-    def test_that_report_gets_parsed
+	def test_that_report_gets_parsed
 		expected_reports = [
 				PositionReport.new('OE1TDA',
 							 DateTime.new(2012, 9, 10, 22, 18, 0),
