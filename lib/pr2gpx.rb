@@ -105,6 +105,14 @@ search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.msg"
 $stderr.puts "Searching #{search_path}" if $verbose
 
 stations = load_data(search_path, options[:callsign])
+stations.each do |callsign, reports|
+	stations[callsign] = reports.values
+		.sort { |report1, report2| report1.date <=> report2.date }
+	stations[callsign] = stations[callsign]
+		.reverse
+		.take(options[:limit])
+		.reverse if options[:limit]
+end
 
 def add_waypoint xml, report, element_name
 	xml.send(element_name, lat: report.position.latitude, lon: report.position.longitude) do
@@ -113,15 +121,13 @@ def add_waypoint xml, report, element_name
 	end
 end
 
-def build_gpx stations, limit
+def build_gpx stations
 	builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
 		xml.gpx(xmlns: 'http://www.topografix.com/GPX/1/1') do
 			stations.each do |callsign, reports|
 				xml.trk(name: callsign) do
 					xml.trkseg do
-						sorted_reports = reports.sort_by { |date, report| date }.reverse
-						sorted_reports = sorted_reports.take(limit) if limit
-						sorted_reports.each do |date, report|
+						reports.each do |report|
 							add_waypoint xml, report, "trkpt"
 						end
 					end
@@ -132,7 +138,7 @@ def build_gpx stations, limit
 	builder.to_xml
 end
 
-gpx = build_gpx(stations, options[:limit])
+gpx = build_gpx(stations)
 
 if options[:output] then
 	File.open options[:output], 'w:UTF-8' do |file|
