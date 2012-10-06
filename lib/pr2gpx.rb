@@ -3,32 +3,38 @@ require 'nokogiri/xml'
 require 'pr2gpx/parser'
 require 'pr2gpx/options'
 
-def load_data search_path, callsigns
+def enumerate_files search_path
+	Enumerator.new do |e|
+		Dir
+			.glob(search_path)
+			.each do |filename|
+				File.open filename do |file|
+					e.yield file.read()
+				end
+			end
+	end
+end
+
+def load_data content_enum, callsigns
 	reportParser = ReportParser.new
 	stations = Hash.new
 
-	Dir
-		.glob(search_path)
-		.each do |filename|
-			content = nil
-			File.open filename do |file|
-				content = file.read()
-			end
-			reports = reportParser.parse(content)
-			if reports
-				reports.each do |report|
-					if not callsigns or callsigns.include? report.callsign
-						stations[report.callsign] = Hash.new unless stations.has_key? report.callsign
-						stations[report.callsign][report.date] = report unless stations[report.callsign].has_key? report.date
-					end
+	content_enum.each do |content|
+		reports = reportParser.parse(content)
+		if reports
+			reports.each do |report|
+				if not callsigns or callsigns.include? report.callsign
+					stations[report.callsign] = Hash.new unless stations.has_key? report.callsign
+					stations[report.callsign][report.date] = report unless stations[report.callsign].has_key? report.date
 				end
 			end
 		end
+	end
 
 	stations
 end
 
-def crop_data! stations, limit
+def filter_data! stations, limit
 	stations.each do |callsign, reports|
 		stations[callsign] = reports.values
 			.sort { |report1, report2| report1.date <=> report2.date }
@@ -46,8 +52,8 @@ exit if not options
 search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.msg"
 $stderr.puts "Searching #{search_path}" if $verbose
 
-stations = load_data(search_path, options[:callsign])
-crop_data! stations, options[:limit]
+stations = load_data(enumerate_files(search_path), options[:callsign])
+filter_data! stations, options[:limit]
 
 def add_waypoint xml, report, element_name
 	xml.send(element_name, lat: report.position.latitude, lon: report.position.longitude) do
