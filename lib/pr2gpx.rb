@@ -28,6 +28,18 @@ def load_data search_path, callsigns
 	stations
 end
 
+def crop_data! stations, limit
+	stations.each do |callsign, reports|
+		stations[callsign] = reports.values
+			.sort { |report1, report2| report1.date <=> report2.date }
+		
+		stations[callsign] = stations[callsign]
+			.reverse
+			.take(limit)
+			.reverse if limit
+	end
+end
+
 options = parse_options ARGV
 exit if not options
 
@@ -35,14 +47,7 @@ search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.msg"
 $stderr.puts "Searching #{search_path}" if $verbose
 
 stations = load_data(search_path, options[:callsign])
-stations.each do |callsign, reports|
-	stations[callsign] = reports.values
-		.sort { |report1, report2| report1.date <=> report2.date }
-	stations[callsign] = stations[callsign]
-		.reverse
-		.take(options[:limit])
-		.reverse if options[:limit]
-end
+crop_data! stations, options[:limit]
 
 def add_waypoint xml, report, element_name
 	xml.send(element_name, lat: report.position.latitude, lon: report.position.longitude) do
