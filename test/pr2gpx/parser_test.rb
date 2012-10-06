@@ -5,9 +5,9 @@ require 'date'
 require_relative '../../lib/pr2gpx/parser'
 
 class TestOutboundReportParser < MiniTest::Unit::TestCase
-	def setup
-		@parser = OutboundReportParser.new
-		@valid_input = <<EOS
+  def setup
+    @parser = OutboundReportParser.new
+    @valid_input = <<EOS
 X-To: QTH
 Subject: POSITION REPORT
 X-WL2K-Type: Position Report
@@ -26,7 +26,7 @@ LONGITUDE: 177-23.18E
 COMMENT: Vuda Point Marina / Viti Levu / Fiji
 EOS
 
-		@incomplete_input = <<EOS
+    @incomplete_input = <<EOS
 X-To: QTH
 Subject: POSITION REPORT
 X-WL2K-Type: Position Report
@@ -42,46 +42,46 @@ X-Date: 2012/10/02 06:22:56
 TIME: 2012/10/02 06:22
 COMMENT: Vuda Point Marina / Viti Levu / Fiji
 EOS
-	end
+  end
 
-	def test_that_report_can_be_parsed
-		assert @parser.can_parse? @valid_input
-	end
+  def test_that_report_can_be_parsed
+    assert @parser.can_parse? @valid_input
+  end
 
-	def test_that_empty_report_cannot_be_parsed
-		refute @parser.can_parse? ''
-	end
+  def test_that_empty_report_cannot_be_parsed
+    refute @parser.can_parse? ''
+  end
 
-	def test_that_report_gets_parsed
-		expected_report = PositionReport.new 'OE1TDA',
-										  	 DateTime.new(2012, 10, 2, 6, 22, 0),
-										  	 Position.new('17-40.83S', '177-23.18E'),
-											 'Vuda Point Marina / Viti Levu / Fiji'
-	
-		results = @parser.parse(@valid_input).collect
+  def test_that_report_gets_parsed
+    expected_report = PositionReport.new 'OE1TDA',
+                                         DateTime.new(2012, 10, 2, 6, 22, 0),
+                                         Position.new('17-40.83S', '177-23.18E'),
+                                         'Vuda Point Marina / Viti Levu / Fiji'
+  
+    results = @parser.parse(@valid_input).collect
 
-		assert_equal 1, results.count
-		assert_includes results, expected_report
-	end
+    assert_equal 1, results.count
+    assert_includes results, expected_report
+  end
 
-	def test_that_incomplete_report_gets_ignored
-		results = @parser.parse(@incomplete_input).collect
+  def test_that_incomplete_report_gets_ignored
+    results = @parser.parse(@incomplete_input).collect
 
-		assert_equal results.count, 0
-	end
+    assert_equal results.count, 0
+  end
 
-	def test_that_empty_report_gets_ignored
-		results = @parser.parse('').collect
+  def test_that_empty_report_gets_ignored
+    results = @parser.parse('').collect
 
-		assert_equal results.count, 0
-	end
+    assert_equal results.count, 0
+  end
 end
 
 class TestReportsListParser < MiniTest::Unit::TestCase
-	def setup
-		@parser = ReportsListParser.new
+  def setup
+    @parser = ReportsListParser.new
 
-		@valid_input = <<EOS
+    @valid_input = <<EOS
 X-Received: from WL2K(WL2K-2.7.3.3-B2FWIHJM$/) by OE1TDA with telnet/FBB-2/KHz id 63OTFXZZIRPC; 22 May 2012 04:55:53 -0000
 X-From: SERVICE@System
 X-WL2K-MBO: System
@@ -114,43 +114,43 @@ Comment: north minerva at anchor, caught a tuna today
 Speed: 0.1 knots
 Course: 045T degrees
 EOS
-	end
+  end
 
-	def test_that_report_can_be_parsed
-		assert @parser.can_parse? @valid_input
-	end
+  def test_that_report_can_be_parsed
+    assert @parser.can_parse? @valid_input
+  end
 
-	def test_that_empty_report_cannot_be_parsed
-		refute @parser.can_parse? ''
-	end
+  def test_that_empty_report_cannot_be_parsed
+    refute @parser.can_parse? ''
+  end
 
-	def test_that_report_gets_parsed
-		expected_reports = [
-				PositionReport.new('HB9EWT',
-							 DateTime.new(2012, 5, 21, 19, 55, 0),
-							 Position.new('20-27.42S', '179-03.49W'),
-							 'underway to savusavu, fiji'),
-				PositionReport.new('HB9EWT',
-							 DateTime.new(2012, 5, 20, 17, 38, 0),
-							 Position.new('22-31.31S', '178-27.82W'),
-							 'underway to savusavu, fiji'),
-				PositionReport.new('HB9EWT',
-							 DateTime.new(2012, 5, 16, 4, 40, 0),
-							 Position.new('23-39.64S', '178-54.46W'),
-							 'north minerva at anchor, caught a tuna today')]
-		
-		results = @parser.parse(@valid_input).collect
+  def test_that_report_gets_parsed
+    expected_reports = [
+        PositionReport.new('HB9EWT',
+                           DateTime.new(2012, 5, 21, 19, 55, 0),
+                           Position.new('20-27.42S', '179-03.49W'),
+                           'underway to savusavu, fiji'),
+        PositionReport.new('HB9EWT',
+                           DateTime.new(2012, 5, 20, 17, 38, 0),
+                           Position.new('22-31.31S', '178-27.82W'),
+                           'underway to savusavu, fiji'),
+        PositionReport.new('HB9EWT',
+                           DateTime.new(2012, 5, 16, 4, 40, 0),
+                           Position.new('23-39.64S', '178-54.46W'),
+                           'north minerva at anchor, caught a tuna today')]
+    
+    results = @parser.parse(@valid_input).collect
 
-		assert_equal 3, expected_reports.count
-		expected_reports.each { |expected_report| assert_includes results, expected_report }
-	end
+    assert_equal 3, expected_reports.count
+    expected_reports.each { |expected_report| assert_includes results, expected_report }
+  end
 end
 
 class TestNearbyStationsParser < MiniTest::Unit::TestCase
-	def setup
-		@parser = NearbyStationsParser.new
+  def setup
+    @parser = NearbyStationsParser.new
 
-		@valid_input = <<EOS
+    @valid_input = <<EOS
 X-Received: from WL2K(WL2K-2.7.3.5-B2FWIHJM$/) by OE1TDA with telnet/FBB-2/KHz id 0X0W40R0QTXT; 13 Sep 2012 21:12:41 -0000
 X-From: SERVICE@WL2K
 X-WL2K-MBO: WL2K
@@ -177,78 +177,78 @@ OE1TDA         0.0 @ 000   17-05.02S 177-16.60E  2012/09/10 22:18  Narewa Bay / 
 HB9TSD        16.2 @ 213   17-18.59S 177-07.36E  2012/09/12 02:35  Green Coral vor Anker Yaloba Bay, Yasawas, Fiji
 VE2CCJ        32.2 @ 165   17-36.12S 177-25.44E  2012/09/12 21:07  A l'ancre a Lautoka
 EOS
-	end
+  end
 
-	def test_that_report_can_be_parsed
-		assert @parser.can_parse? @valid_input
-	end
+  def test_that_report_can_be_parsed
+    assert @parser.can_parse? @valid_input
+  end
 
-	def test_that_empty_report_cannot_be_parsed
-		refute @parser.can_parse? ''
-	end
+  def test_that_empty_report_cannot_be_parsed
+    refute @parser.can_parse? ''
+  end
 
-	def test_that_report_gets_parsed
-		expected_reports = [
-				PositionReport.new('OE1TDA',
-							 DateTime.new(2012, 9, 10, 22, 18, 0),
-							 Position.new('17-05.02S', '177-16.60E'),
-							 'Narewa Bay / Naviti / Fiji'),
-				PositionReport.new('HB9TSD',
-							 DateTime.new(2012, 9, 12, 2, 35, 0),
-							 Position.new('17-18.59S', '177-07.36E'),
-							 'Green Coral vor Anker Yaloba Bay, Yasawas, Fiji'),
-				PositionReport.new('VE2CCJ',
-							 DateTime.new(2012, 9, 12, 21, 07, 0),
-							 Position.new('17-36.12S', '177-25.44E'),
-							 'A l\'ancre a Lautoka')]
-		
-		results = @parser.parse(@valid_input).collect
+  def test_that_report_gets_parsed
+    expected_reports = [
+        PositionReport.new('OE1TDA',
+                           DateTime.new(2012, 9, 10, 22, 18, 0),
+                           Position.new('17-05.02S', '177-16.60E'),
+                           'Narewa Bay / Naviti / Fiji'),
+        PositionReport.new('HB9TSD',
+                           DateTime.new(2012, 9, 12, 2, 35, 0),
+                           Position.new('17-18.59S', '177-07.36E'),
+                           'Green Coral vor Anker Yaloba Bay, Yasawas, Fiji'),
+        PositionReport.new('VE2CCJ',
+                           DateTime.new(2012, 9, 12, 21, 07, 0),
+                           Position.new('17-36.12S', '177-25.44E'),
+                           'A l\'ancre a Lautoka')]
+    
+    results = @parser.parse(@valid_input).collect
 
-		assert_equal 3, expected_reports.count
-		expected_reports.each { |expected_report| assert_includes results, expected_report }
-	end
+    assert_equal 3, expected_reports.count
+    expected_reports.each { |expected_report| assert_includes results, expected_report }
+  end
 end
 
 class TestPosition < MiniTest::Unit::TestCase
-	def test_that_position_can_be_created_from_strings
-		cases = {
-			['0-0.0N', '0-0.0E'] => [0.0, 0.0],
-			['12-34.5N', '123-45.6E'] => [12.575, 123.76],
-			['12-34.5S', '123-45.6W'] => [-12.575, -123.76]
-		}
+  def test_that_position_can_be_created_from_strings
+    cases = {
+      ['0-0.0N',   '0-0.0E']    => [0.0, 0.0],
+      ['12-34.5N', '123-45.6E'] => [12.575, 123.76],
+      ['12-34.5S', '123-45.6W'] => [-12.575, -123.76]
+    }
 
-		cases.each do |input, expected_result|
-			position = Position.new input[0], input[1]
+    cases.each do |input, expected_result|
+      position = Position.new input[0], input[1]
 
-			assert_equal expected_result[0], position.latitude
-			assert_equal expected_result[1], position.longitude
-		end
-	end
+      assert_equal expected_result[0], position.latitude
+      assert_equal expected_result[1], position.longitude
+    end
+  end
 end
 
 class TestReportFilter < MiniTest::Unit::TestCase
-	def setup
-		@report = PositionReport.new('OE1TDA',
-					 DateTime.new(2012, 9, 10, 22, 18, 0),
-					 Position.new('17-05.02S', '177-16.60E'),
-					 'Narewa Bay / Naviti / Fiji')
-	end
+  def setup
+    @report = PositionReport.new('OE1TDA',
+                                 DateTime.new(2012, 9, 10, 22, 18, 0),
+                                 Position.new('17-05.02S', '177-16.60E'),
+                                 'Narewa Bay / Naviti / Fiji')
+  end
 
-	def test_report_passes_through_when_no_filter_specified
-		report_filter = ReportFilter.new nil
-		
-		assert report_filter.include? @report
-	end
+  def test_report_passes_through_when_no_filter_specified
+    report_filter = ReportFilter.new nil
+    
+    assert report_filter.include? @report
+  end
 
-	def test_report_gets_filtered_when_callsign_not_in_filter
-		report_filter = ReportFilter.new ['C1', 'C2']
-		
-		refute report_filter.include? @report
-	end
+  def test_report_gets_filtered_when_callsign_not_in_filter
+    report_filter = ReportFilter.new ['C1', 'C2']
+    
+    refute report_filter.include? @report
+  end
 
-	def test_report_passes_through_when_callsign_not_in_filter
-		report_filter = ReportFilter.new ['OE1TDA', 'C2']
-		
-		assert report_filter.include? @report
-	end
+  def test_report_passes_through_when_callsign_not_in_filter
+    report_filter = ReportFilter.new ['OE1TDA', 'C2']
+    
+    assert report_filter.include? @report
+  end
 end
