@@ -4,7 +4,7 @@ def parse_options argv
 	options = {}
 
 	def set_option options, name
-		lambda { |options, name, value| options[name] = value }.curry.(options, name)
+		->(options, name, value) { options[name] = value }.curry.(options, name)
 	end
 
 	OptionParser.new do |o|
