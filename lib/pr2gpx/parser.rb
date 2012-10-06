@@ -107,3 +107,13 @@ class NearbyStationsParser
 		end
 	end
 end
+
+class ReportFilter
+	def initialize callsigns
+		@callsigns = callsigns
+	end
+
+	def include? report
+		not @callsigns or @callsigns.include? report.callsign
+	end
+end

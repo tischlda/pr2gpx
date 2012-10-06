@@ -225,3 +225,30 @@ class TestPosition < MiniTest::Unit::TestCase
 		end
 	end
 end
+
+class TestReportFilter < MiniTest::Unit::TestCase
+	def setup
+		@report = PositionReport.new('OE1TDA',
+					 DateTime.new(2012, 9, 10, 22, 18, 0),
+					 Position.new('17-05.02S', '177-16.60E'),
+					 'Narewa Bay / Naviti / Fiji')
+	end
+
+	def test_report_passes_through_when_no_filter_specified
+		report_filter = ReportFilter.new nil
+		
+		assert report_filter.include? @report
+	end
+
+	def test_report_gets_filtered_when_callsign_not_in_filter
+		report_filter = ReportFilter.new ['C1', 'C2']
+		
+		refute report_filter.include? @report
+	end
+
+	def test_report_passes_through_when_callsign_not_in_filter
+		report_filter = ReportFilter.new ['OE1TDA', 'C2']
+		
+		assert report_filter.include? @report
+	end
+end

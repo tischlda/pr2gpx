@@ -15,7 +15,7 @@ def enumerate_files search_path
 	end
 end
 
-def load_data content_enum, callsigns
+def load_data content_enum, filter
 	reportParser = ReportParser.new
 	stations = Hash.new
 
@@ -23,7 +23,7 @@ def load_data content_enum, callsigns
 		reports = reportParser.parse(content)
 		if reports
 			reports.each do |report|
-				if not callsigns or callsigns.include? report.callsign
+				if filter.include? report
 					stations[report.callsign] = Hash.new unless stations.has_key? report.callsign
 					stations[report.callsign][report.date] = report unless stations[report.callsign].has_key? report.date
 				end
@@ -52,7 +52,9 @@ exit if not options
 search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.msg"
 $stderr.puts "Searching #{search_path}" if $verbose
 
-stations = load_data(enumerate_files(search_path), options[:callsign])
+filter = ReportFilter.new options[:callsign]
+
+stations = load_data(enumerate_files(search_path), filter)
 filter_data! stations, options[:limit]
 
 def add_waypoint xml, report, element_name
