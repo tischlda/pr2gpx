@@ -34,15 +34,15 @@ def load_data content_enum, filter
   stations
 end
 
-def filter_data! stations, limit
+def filter_data! stations, last
   stations.each do |callsign, reports|
     stations[callsign] = reports.values
       .sort { |report1, report2| report1.date <=> report2.date }
     
     stations[callsign] = stations[callsign]
       .reverse
-      .take(limit)
-      .reverse if limit
+      .take(last)
+      .reverse if last
   end
 end
 
@@ -92,16 +92,16 @@ end
 options = parse_options ARGV
 exit if not options
 
-options[:path].gsub!('\\', '/')
+options[:input].gsub!('\\', '/')
 options[:output].gsub!('\\', '/') if options[:output]
 
-search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.*"
+search_path = "#{options[:input]}/#{options[:recurse] ? '**/' : ''}*.*"
 $stderr.puts "Searching #{search_path}" if $verbose
 
 filter = ReportFilter.new options[:callsign]
 
 stations = load_data(enumerate_files(search_path), filter)
-filter_data! stations, options[:limit]
+filter_data! stations, options[:last]
 
 if options[:split]
   stations.each do |callsign, reports|

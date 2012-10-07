@@ -2,16 +2,17 @@ require 'optparse'
 
 def parse_options argv
   options = {}
+  mandatory = [:input]
 
   def set_option options, name
     ->(options, name, value) { options[name] = value }.curry.(options, name)
   end
 
   OptionParser.new do |o|
-    options[:path] = nil
+    options[:input] = nil
     o.on '-i', '--input PATH',
       'Specifies the path to be searched for files containing position reports.',
-      set_option(options, :path)
+      set_option(options, :input)
 
     options[:recurse] = false
     o.on '-r', '--recurse',
@@ -40,10 +41,10 @@ def parse_options argv
       'Processes only the stations with the given callsigns.',
       set_option(options, :callsign)
 
-    options[:limit] = nil
-    o.on '-l', '--limit [LIMIT]', Integer,
-      'Limits the result to the LIMIT newest entrys for each station.',
-      set_option(options, :limit)
+    options[:last] = nil
+    o.on '-l', '--last [n]', Integer,
+      'Limits the result to the last N entries for each station.',
+      set_option(options, :last)
 
     options[:help] = false
     o.on '-h', '--help',
@@ -74,7 +75,6 @@ def parse_options argv
       o.parse! argv
 
       if not options[:help]
-        mandatory = [:path]
         missing = mandatory.select { |param| options[param].nil? }
         if not missing.empty?
           puts "Missing options: #{missing.join(', ')}"
