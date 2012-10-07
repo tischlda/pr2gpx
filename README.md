@@ -3,6 +3,11 @@ pr2gpx
 
 Converts Winlink position reports sent or received with Airmail into GPX tracks or waypoints.
 
+It understands:
+- sent position reports (Window->Winlink-2000->Position Report)
+- reports requested for specific stations (Window->Winlink-2000->Position Request)
+- lists of nearby stations (Window->Catalogs->WL2K->Global->WL2K_USERS->WL2K_NEARBY)
+
 pr2gpx scans a directory for files containing position reports in various formats. It can filter them to include only stations with a given callsign, and limit the results to the last N reports per station.
 
 The output is either one track for each station, a list of waypoints for every position report, or both.
@@ -22,8 +27,6 @@ Then install pr2gpx:
 
 Using
 -----
-
-Examples:
 
     pr2gpx --help
 
@@ -49,6 +52,16 @@ Developing
 ----------
 
 Source: http://github.com/tischdla/pr2gpx
+
+
+Run tests:
+
+	rake test
+
+
+Create gem package:
+
+	rake package
 
 
 Copyright
