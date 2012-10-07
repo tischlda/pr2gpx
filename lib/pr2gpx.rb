@@ -46,17 +46,6 @@ def filter_data! stations, limit
   end
 end
 
-options = parse_options ARGV
-exit if not options
-
-search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.*"
-$stderr.puts "Searching #{search_path}" if $verbose
-
-filter = ReportFilter.new options[:callsign]
-
-stations = load_data(enumerate_files(search_path), filter)
-filter_data! stations, options[:limit]
-
 def build_gpx stations, create_trk, create_wpt
   builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
     xml.gpx(xmlns: 'http://www.topografix.com/GPX/1/1') do
@@ -99,6 +88,17 @@ def write_gpx filename, gpx
     file.write gpx
   end
 end
+
+options = parse_options ARGV
+exit if not options
+
+search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.*"
+$stderr.puts "Searching #{search_path}" if $verbose
+
+filter = ReportFilter.new options[:callsign]
+
+stations = load_data(enumerate_files(search_path), filter)
+filter_data! stations, options[:limit]
 
 if options[:split]
   stations.each do |callsign, reports|
