@@ -92,6 +92,9 @@ end
 options = parse_options ARGV
 exit if not options
 
+options[:path].gsub!('\\', '/')
+options[:output].gsub!('\\', '/') if options[:output]
+
 search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.*"
 $stderr.puts "Searching #{search_path}" if $verbose
 
