@@ -57,29 +57,35 @@ filter = ReportFilter.new options[:callsign]
 stations = load_data(enumerate_files(search_path), filter)
 filter_data! stations, options[:limit]
 
-def build_gpx stations
+def build_gpx stations, create_trk, create_wpt
   builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
     xml.gpx(xmlns: 'http://www.topografix.com/GPX/1/1') do
-      stations.each do |callsign, reports|
-        xml.trk do
-          xml.name callsign
-          xml.trkseg do
-            reports.each do |report|
-              xml.send('trkpt', lat: report.position.latitude, lon: report.position.longitude) do
-                xml.name report.comment
-                xml.time report.date.strftime('%FT%TZ')
+      if create_trk
+        stations.each do |callsign, reports|
+          xml.trk do
+            xml.name callsign
+            xml.trkseg do
+              reports.each do |report|
+                xml.send('trkpt', lat: report.position.latitude, lon: report.position.longitude) do
+                  xml.name report.comment
+                  xml.time report.date.strftime('%FT%TZ')
+                end
               end
             end
           end
         end
       end
-      stations.each do |callsign, reports|
-        reports.each do |report|
-          xml.send('wpt', lat: report.position.latitude, lon: report.position.longitude) do
-            xml.name report.callsign
-            xml.desc report.comment
-            xml.time report.date.strftime('%FT%TZ')
-            xml.type 'WPT'
+      if create_wpt
+        stations.each do |callsign, reports|
+          last = reports.last
+          reports.each do |report|
+            xml.send('wpt', lat: report.position.latitude, lon: report.position.longitude) do
+              xml.name report.callsign
+              xml.desc report.comment
+              xml.time report.date.strftime('%FT%TZ')
+              xml.type 'WPT'
+              xml.sym report == last ? 'triangle' : 'circle'
+            end
           end
         end
       end
@@ -96,7 +102,7 @@ end
 
 if options[:split]
   stations.each do |callsign, reports|
-    gpx = build_gpx({ callsign => reports })
+    gpx = build_gpx({ callsign => reports }, options[:create_trk], options[:create_wpt])
 
     if options[:output] then
       write_gpx "#{options[:output]}/#{options[:prefix]}#{callsign}.gpx", gpx
@@ -105,7 +111,7 @@ if options[:split]
     end
   end
 else
-  gpx = build_gpx(stations)
+  gpx = build_gpx(stations, options[:create_trk], options[:create_wpt])
 
   if options[:output] then
     write_gpx options[:output], gpx

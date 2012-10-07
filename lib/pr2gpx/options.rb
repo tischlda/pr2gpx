@@ -51,6 +51,19 @@ def parse_options argv
       options[:help] = true
     end
     
+    options[:create_trk] = options[:create_wpt] = true
+    o.on '-f', '--format FORMAT[,FORMAT]', Array,
+      'Selects one or more output formats. Supported values are \'TRK\', \'WPT\'.' do |values|
+      values.each do |value|
+        options[:create_trk] = options[:create_wpt] = false
+        case(value)
+          when 'TRK' then options[:create_trk] = true
+          when 'WPT' then options[:create_wpt] = true
+          else raise OptionParser::InvalidOption.new value
+        end
+      end
+    end
+    
     $verbose = false
     o.on '-v', '--verbose',
       'Turns on verbose mode.' do |value|
@@ -71,6 +84,7 @@ def parse_options argv
       end
     rescue OptionParser::InvalidOption, OptionParser::MissingArgument
       puts $!.to_s
+      puts
       options[:help] = true
     end
 
