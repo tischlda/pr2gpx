@@ -22,6 +22,7 @@ end
 # receiving an Enumerable of PositionReport. If the report passes
 # through the filter, it is added to the hash of the station, if
 # no other report with the same date exists.
+#
 # Those hashes are stored in another hash, indexed by callsign,
 # which gets returned.
 def load_data content_enum, filter
@@ -47,6 +48,11 @@ def load_data content_enum, filter
   stations
 end
 
+# Converts the reports the entries of the stations-hash, which are
+# hashes indexed by date, into arrays sorted by date.
+#
+# The parameter last can be used to limit the reports to the N
+# most recent ones.
 def filter_data! stations, last
   stations.each do |callsign, reports|
     stations[callsign] = reports.values
@@ -59,6 +65,12 @@ def filter_data! stations, last
   end
 end
 
+# Creates the GPX document from the stations hash.
+#
+# If create_trk is true, one trk per station gets created.
+#
+# If create_wpt is true, one waypoint for every report of every
+# station gets created.
 def build_gpx stations, create_trk, create_wpt
   builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
     xml.gpx(xmlns: 'http://www.topografix.com/GPX/1/1') do
@@ -103,9 +115,14 @@ def write_gpx filename, gpx
   end
 end
 
-
 options = parse_options ARGV
 exit if not options
+
+errors = validate_options(options)
+if errors
+  $stderr.puts errors
+  exit
+end
 
 # normalize path separators
 options[:input].gsub!('\\', '/')

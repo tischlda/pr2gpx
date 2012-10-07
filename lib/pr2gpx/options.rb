@@ -1,5 +1,6 @@
 require 'optparse'
 
+# If options are valid, returns a hash of options, otherwise nil.
 def parse_options argv
   options = {}
   mandatory = [:input]
@@ -95,4 +96,31 @@ def parse_options argv
   end
 
   options
+end
+
+# If errors are encountered, returns an array of error messages, otherwise nil.
+def validate_options options
+  errors = []
+
+  if not File.exists?(options[:input])
+    errors << 'Path specified in --input does not exist.'
+  elsif not File.directory?(options[:input])
+    errors << 'Path specified in --input is not a directory.'
+  end
+
+  if options[:split]
+    if not File.exists?(options[:output])
+      errors << 'Path specified in --output does not exist.'
+    elsif not File.directory?(options[:output])
+      errors << 'Path specified in --output is not a directory.'
+    end
+  else
+    if not File.exists?(File.dirname(options[:output]))
+      errors << 'Path specified in --output does not exist.'
+    elsif File.directory?(options[:output])
+      errors << 'Path specified in --output is a directory.'
+    end
+  end
+
+  errors if errors.length > 0
 end
