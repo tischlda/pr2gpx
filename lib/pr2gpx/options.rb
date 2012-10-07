@@ -9,40 +9,53 @@ def parse_options argv
 
   OptionParser.new do |o|
     options[:path] = nil
-    o.on '-p', '--path PATH',
-      'specify the path to be searched',
+    o.on '-i', '--input PATH',
+      'Specifies the path to be searched for files containing position reports.',
       set_option(options, :path)
 
     options[:recurse] = false
     o.on '-r', '--recurse',
-      'enable recursive searching' do
+      'Enables recursive searching.' do
         options[:recurse] = true
       end
 
     options[:output] = nil
     o.on '-o', '--output [PATH]',
-      'specify the path write to. If omitted, the output is sent to STDOUT',
+      'Specifies the file or directory (when using --split) to write to. Default is STDOUT.',
+      set_option(options, :output)
+
+    options[:split] = false
+    o.on '-s', '--split',
+      'Creates one GPX document per station. If --output is specified, it is interpreted as a directory, and one file is created per station, named [PREFIX][STATION].gpx.' do |value|
+      options[:split] = value
+    end
+
+    options[:prefix] = 'PR_'
+    o.on '-p', '--prefix [PREFIX]',
+      'Specifies the prefix to be used when using --split, default is \'PR_\'.',
       set_option(options, :output)
 
     options[:callsign] = nil
-    o.on '-c', '--callsign "[CALLSIGN[,CALLSIGN]]"', Array,
-      'processes only the stations with the given callsigns',
+    o.on '-c', '--callsign [CALLSIGN[,CALLSIGN]]', Array,
+      'Processes only the stations with the given callsigns.',
       set_option(options, :callsign)
 
     options[:limit] = nil
     o.on '-l', '--limit [LIMIT]', Integer,
-      'limit the result to the LIMIT newest entrys for each station',
+      'Limits the result to the LIMIT newest entrys for each station.',
       set_option(options, :limit)
 
     options[:help] = false
     o.on '-h', '--help',
-      'display this screen' do
-        options[:help] = true
-      end
+      'Displays this screen.' do
+      options[:help] = true
+    end
     
     $verbose = false
     o.on '-v', '--verbose',
-      'turn on verbose mode' do $verbose = true end
+      'Turns on verbose mode.' do |value|
+      $verbose = value
+    end
 
     begin
       o.parse! argv

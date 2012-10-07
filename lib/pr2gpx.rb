@@ -49,7 +49,7 @@ end
 options = parse_options ARGV
 exit if not options
 
-search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.msg"
+search_path = "#{options[:path]}/#{options[:recurse] ? '**/' : ''}*.*"
 $stderr.puts "Searching #{search_path}" if $verbose
 
 filter = ReportFilter.new options[:callsign]
@@ -67,7 +67,7 @@ def build_gpx stations
             reports.each do |report|
               xml.send('trkpt', lat: report.position.latitude, lon: report.position.longitude) do
                 xml.name report.comment
-                xml.time report.date
+                xml.time report.date.strftime('%FT%TZ')
               end
             end
           end
@@ -88,12 +88,28 @@ def build_gpx stations
   builder.to_xml
 end
 
-gpx = build_gpx(stations)
-
-if options[:output] then
-  File.open options[:output], 'w:UTF-8' do |file|
+def write_gpx filename, gpx
+  File.open filename, 'w:UTF-8' do |file|
     file.write gpx
   end
+end
+
+if options[:split]
+  stations.each do |callsign, reports|
+    gpx = build_gpx({ callsign => reports })
+
+    if options[:output] then
+      write_gpx "#{options[:output]}/#{options[:prefix]}#{callsign}.gpx", gpx
+    else
+      puts gpx
+    end
+  end
 else
-  puts gpx
+  gpx = build_gpx(stations)
+
+  if options[:output] then
+    write_gpx options[:output], gpx
+  else
+    puts gpx
+  end
 end
