@@ -3,11 +3,14 @@ require 'nokogiri/xml'
 require 'pr2gpx/parser'
 require 'pr2gpx/options'
 
+# Creates an Enumerable with one entry for every file in search_path,
+# containing the files content.
 def enumerate_files search_path
   Enumerator.new do |e|
     Dir
       .glob(search_path)
       .each do |filename|
+        $stderr.puts "Reading #{filename}" if $verbose
         File.open filename do |file|
           e.yield file.read()
       end
@@ -15,6 +18,12 @@ def enumerate_files search_path
   end
 end
 
+# Runs each element of content_enum through ReportParser::parse,
+# receiving an Enumerable of PositionReport. If the report passes
+# through the filter, it is added to the hash of the station, if
+# no other report with the same date exists.
+# Those hashes are stored in another hash, indexed by callsign,
+# which gets returned.
 def load_data content_enum, filter
   reportParser = ReportParser.new
   stations = Hash.new
@@ -24,11 +33,15 @@ def load_data content_enum, filter
     if reports
       reports.each do |report|
         if filter.include? report
+          $stderr.print 'o' if $verbose
           stations[report.callsign] = Hash.new unless stations.has_key? report.callsign
           stations[report.callsign][report.date] = report unless stations[report.callsign].has_key? report.date
+        else
+          $stderr.print '.' if $verbose
         end
       end
     end
+    $stderr.puts if $verbose
   end
 
   stations
@@ -84,14 +97,17 @@ def build_gpx stations, create_trk, create_wpt
 end
 
 def write_gpx filename, gpx
+  $stderr.puts "Writing #{filename}" if $verbose
   File.open filename, 'w:UTF-8' do |file|
     file.write gpx
   end
 end
 
+
 options = parse_options ARGV
 exit if not options
 
+# normalize path separators
 options[:input].gsub!('\\', '/')
 options[:output].gsub!('\\', '/') if options[:output]
 
@@ -103,7 +119,7 @@ filter = ReportFilter.new options[:callsign]
 stations = load_data(enumerate_files(search_path), filter)
 filter_data! stations, options[:last]
 
-if options[:split]
+if options[:split] # create one document for each station
   stations.each do |callsign, reports|
     gpx = build_gpx({ callsign => reports }, options[:create_trk], options[:create_wpt])
 
@@ -113,7 +129,7 @@ if options[:split]
       puts gpx
     end
   end
-else
+else # create one document for all data
   gpx = build_gpx(stations, options[:create_trk], options[:create_wpt])
 
   if options[:output] then
