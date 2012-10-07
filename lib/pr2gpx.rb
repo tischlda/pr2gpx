@@ -57,22 +57,29 @@ filter = ReportFilter.new options[:callsign]
 stations = load_data(enumerate_files(search_path), filter)
 filter_data! stations, options[:limit]
 
-def add_waypoint xml, report, element_name
-  xml.send(element_name, lat: report.position.latitude, lon: report.position.longitude) do
-    xml.name report.comment
-    xml.time report.date
-  end
-end
-
 def build_gpx stations
   builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
     xml.gpx(xmlns: 'http://www.topografix.com/GPX/1/1') do
       stations.each do |callsign, reports|
-        xml.trk(name: callsign) do
+        xml.trk do
+          xml.name callsign
           xml.trkseg do
             reports.each do |report|
-              add_waypoint xml, report, "trkpt"
+              xml.send('trkpt', lat: report.position.latitude, lon: report.position.longitude) do
+                xml.name report.comment
+                xml.time report.date
+              end
             end
+          end
+        end
+      end
+      stations.each do |callsign, reports|
+        reports.each do |report|
+          xml.send('wpt', lat: report.position.latitude, lon: report.position.longitude) do
+            xml.name report.callsign
+            xml.desc report.comment
+            xml.time report.date.strftime('%FT%TZ')
+            xml.type 'WPT'
           end
         end
       end
