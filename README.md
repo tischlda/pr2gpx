@@ -18,6 +18,8 @@ The output is either one track for each station, a list of waypoints for every p
 
 The results can either be saved into a single file containing everything, or it can be split into one file for each station.
 
+If no input path is given, pr2gpx reads from STDIN. If no output path is given, pr2gpx writes to STDOUT.
+
 
 Installing
 ----------
@@ -50,6 +52,11 @@ Writes the most recent position report of CALL1, CALL2 and CALL3 into positions.
 	pr2gpx --input c:\ProgramData\Airmail\Inbox --last 10 --callsign CALL1,CALL2,CALL3 --output C:\ProgramData\opencpn\layers --split
 
 Writes the 10 most recent position reports of CALL1, CALL2 and CALL3 into PR_CALL1.gpx, PR_CALL2.gpx and PR_CALL3.gpx in C:\ProgramData\opencpn\layers.
+
+
+	curl http://www.winlink.org/dotnet/maps/RSSPositionReports.aspx?callsign=CALL1 | pr2gpx --last 5 --output C:\ProgramData\opencpn\layers --split
+
+Downloads the data for CALL1 from Winlink and writes the 5 most recent position reports into PR_CALL1.gpx in C:\ProgramData\opencpn\layers.
 
 
 Developing
