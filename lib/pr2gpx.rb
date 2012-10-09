@@ -9,9 +9,11 @@ def enumerate_files search_path
     Dir
       .glob(search_path)
       .each do |filename|
-        $stderr.puts "Reading #{filename}" if $verbose
-        File.open filename do |file|
-          e.yield file.read()
+        if File.file?(filename)
+          $stderr.puts "Reading #{filename}" if $verbose
+          File.open filename do |file|
+            e.yield file.read()
+        end
       end
     end
   end
@@ -77,10 +79,15 @@ end
 options[:input].gsub!('\\', '/')
 options[:output].gsub!('\\', '/') if options[:output]
 
-search_path = "#{options[:input]}/#{options[:recurse] ? '**/' : ''}*.*"
-$stderr.puts "Searching #{search_path}" if $verbose
-
 filter = ReportFilter.new options[:callsign]
+
+search_path = if File.directory?(options[:input])
+  "#{options[:input]}/#{options[:recurse] ? '**/' : ''}*.*"
+else
+  options[:input]
+end
+
+$stderr.puts "Searching #{search_path}" if $verbose
 
 stations = load_data(enumerate_files(search_path), filter)
 filter_data! stations, options[:last]

@@ -104,8 +104,6 @@ def validate_options options
 
   if not File.exists?(options[:input])
     errors << 'Path specified in --input does not exist.'
-  elsif not File.directory?(options[:input])
-    errors << 'Path specified in --input is not a directory.'
   end
 
   if options[:split]
