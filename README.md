@@ -1,18 +1,22 @@
 pr2gpx
 ======
 
-Converts Winlink position reports sent or received with Airmail into GPX tracks or waypoints.
+Converts Winlink position reports into GPX tracks or waypoints.
 
-It understands:
+pr2gpx understands position report data downloaded as RSS documents from the [Winlink 2000](http://www.winlink.org/) website using this Url:
+
+	http://www.winlink.org/dotnet/maps/RSSPositionReports.aspx?callsign=[callsign]
+
+It also understands the information contained in messages sent or received with the [AirMail](http://siriuscyber.net/airmail/) client program:
 - sent position reports (Window->Winlink-2000->Position Report)
 - reports requested for specific stations (Window->Winlink-2000->Position Request)
 - lists of nearby stations (Window->Catalogs->WL2K->Global->WL2K_USERS->WL2K_NEARBY)
 
-pr2gpx scans a directory for files containing position reports in various formats. It can filter them to include only stations with a given callsign, and limit the results to the last N reports per station.
+pr2gpx can either be given one file to parse, or it can scan all files in a directory. It can filter the data to include only stations with a given callsign, and limit the results to the last N reports per station.
 
 The output is either one track for each station, a list of waypoints for every position report, or both.
 
-This can either be saved into a single file containing everything, or it can be split into one file for each station.
+The results can either be saved into a single file containing everything, or it can be split into one file for each station.
 
 
 Installing
