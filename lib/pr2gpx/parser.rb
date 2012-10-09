@@ -1,4 +1,6 @@
 require 'date'
+require 'nokogiri'
+require 'nokogiri/xml'
 
 PositionReport = Struct.new "PositionReport", :callsign, :date, :position, :comment
 
@@ -24,7 +26,7 @@ end
 
 class ReportParser
   def initialize
-    @parsers = [NearbyStationsParser.new, ReportsListParser.new, OutboundReportParser.new]
+    @parsers = [NearbyStationsParser.new, ReportsListParser.new, OutboundReportParser.new, RSSParser.new]
   end
 
   def parse input
@@ -101,6 +103,34 @@ class NearbyStationsParser
       }x do |callsign, latitude, longitude, year, month, day, hour, minute, comment|
         e.yield PositionReport.new callsign,
                                    DateTime.new(year.to_i, month.to_i, day.to_i, hour.to_i, minute.to_i, 0),
+                                   Position.new(latitude, longitude),
+                                   comment
+      end
+    end
+  end
+end
+
+class RSSParser
+  def can_parse? input
+    /<rss version="2\.0">/ =~ input
+  end
+
+  def parse input
+    Enumerator.new do |e|
+      xml = Nokogiri::XML(input)
+      xml.xpath('//item').each do |item|
+        %r{^
+          Position[ ]report[ ]for[ ]
+          (?<callsign>[^ ]*)
+          [ ]is[ ]
+          (?<latitude>[^ ]*)
+          [ ]/[ ]
+          (?<longitude>[^ ]*)
+        }x =~ item.xpath('title').first.content
+        comment = item.xpath('description').first.content
+        date = DateTime.parse(item.xpath('pubDate').first.content)
+        e.yield PositionReport.new callsign,
+                                   date,
                                    Position.new(latitude, longitude),
                                    comment
       end

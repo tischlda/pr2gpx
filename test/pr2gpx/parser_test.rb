@@ -209,6 +209,71 @@ EOS
   end
 end
 
+class TestRSSParser < MiniTest::Unit::TestCase
+  def setup
+    @parser = RSSParser.new
+
+    @valid_input = <<EOS
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Winlink 2000 Position Report Map for OE1TDA</title>
+    <link>http://www.winlink.org/dotnet/maps/PositionReports.aspx?callsign=OE1TDA</link>
+    <description>Winlink 2000 user position reports</description>
+    <ttl>60</ttl>
+    <item>
+      <title>Position report for OE1TDA is 17-40.83S / 177-23.18E</title>
+      <description>Vuda Point Marina / Viti Levu / Fiji</description>
+      <pubDate>Tue, 02 Oct 2012 06:22:00 GMT</pubDate>
+      <link>http://www.winlink.org/dotnet/maps/PositionReportsDetail.aspx?callsign=OE1TDA</link>
+    </item>
+    <item>
+      <title>Position report for OE1TDA is 17-46.23S / 177-22.90E on course 198T at a speed of 0.9</title>
+      <description>Denerau Marina / Viti Levu / Fiji</description>
+      <pubDate>Wed, 19 Sep 2012 22:54:00 GMT</pubDate>
+      <link>http://www.winlink.org/dotnet/maps/PositionReportsDetail.aspx?callsign=OE1TDA</link>
+    </item>
+    <item>
+      <title>Position report for OE1TDA is 17-38.54S / 177-23.61E</title>
+      <description>Saweni Bay / Viti Levu / Fiji</description>
+      <pubDate>Tue, 18 Sep 2012 02:41:00 GMT</pubDate>
+      <link>http://www.winlink.org/dotnet/maps/PositionReportsDetail.aspx?callsign=OE1TDA</link>
+    </item>
+  </channel>
+</rss>
+EOS
+  end
+
+  def test_that_report_can_be_parsed
+    assert @parser.can_parse? @valid_input
+  end
+
+  def test_that_empty_report_cannot_be_parsed
+    refute @parser.can_parse? ''
+  end
+
+  def test_that_report_gets_parsed
+    expected_reports = [
+        PositionReport.new('OE1TDA',
+                           DateTime.new(2012, 10, 2, 6, 22, 0),
+                           Position.new('17-40.83S', '177-23.18E'),
+                           'Vuda Point Marina / Viti Levu / Fiji'),
+        PositionReport.new('OE1TDA',
+                           DateTime.new(2012, 9, 19, 22, 54, 0),
+                           Position.new('17-46.23S', '177-22.90E'),
+                           'Denerau Marina / Viti Levu / Fiji'),
+        PositionReport.new('OE1TDA',
+                           DateTime.new(2012, 9, 18, 2, 41, 0),
+                           Position.new('17-38.54S', '177-23.61E'),
+                           'Saweni Bay / Viti Levu / Fiji')]
+    
+    results = @parser.parse(@valid_input).collect
+
+    assert_equal 3, expected_reports.count
+    expected_reports.each { |expected_report| assert_includes results, expected_report }
+  end
+end
+
 class TestPosition < MiniTest::Unit::TestCase
   def test_that_position_can_be_created_from_strings
     cases = {
