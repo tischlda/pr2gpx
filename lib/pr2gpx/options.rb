@@ -115,10 +115,12 @@ def validate_options options
       errors << 'Path specified in --output is not a directory.'
     end
   else
-    if not File.exists?(File.dirname(options[:output]))
-      errors << 'Path specified in --output does not exist.'
-    elsif File.directory?(options[:output])
-      errors << 'Path specified in --output is a directory.'
+    if options[:output]
+      if not File.exists?(File.dirname(options[:output]))
+        errors << 'Path specified in --output does not exist.'
+      elsif File.directory?(options[:output])
+        errors << 'Path specified in --output is a directory.'
+      end
     end
   end
 
