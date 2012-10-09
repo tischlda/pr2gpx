@@ -75,21 +75,26 @@ if errors
   exit
 end
 
-# normalize path separators
-options[:input].gsub!('\\', '/')
-options[:output].gsub!('\\', '/') if options[:output]
-
 filter = ReportFilter.new options[:callsign]
 
-search_path = if File.directory?(options[:input])
-  "#{options[:input]}/#{options[:recurse] ? '**/' : ''}*.*"
+stations = if options[:input]
+  # normalize path separators
+  options[:input].gsub!('\\', '/')
+  options[:output].gsub!('\\', '/') if options[:output]
+
+  search_path = if File.directory?(options[:input])
+    "#{options[:input]}/#{options[:recurse] ? '**/' : ''}*.*"
+  else
+    options[:input]
+  end
+
+  $stderr.puts "Searching #{search_path}" if $verbose
+
+  load_data(enumerate_files(search_path), filter)
 else
-  options[:input]
+  load_data([$stdin.read()], filter)
 end
 
-$stderr.puts "Searching #{search_path}" if $verbose
-
-stations = load_data(enumerate_files(search_path), filter)
 filter_data! stations, options[:last]
 
 if options[:split] # create one document for each station

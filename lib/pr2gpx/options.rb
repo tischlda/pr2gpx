@@ -3,7 +3,7 @@ require 'optparse'
 # If options are valid, returns a hash of options, otherwise nil.
 def parse_options argv
   options = {}
-  mandatory = [:input]
+  mandatory = []
 
   def set_option options, name
     ->(options, name, value) { options[name] = value }.curry.(options, name)
@@ -11,7 +11,7 @@ def parse_options argv
 
   OptionParser.new do |o|
     options[:input] = nil
-    o.on '-i', '--input PATH',
+    o.on '-i', '--input [PATH]',
       'Specifies the path to be searched for files containing position reports.',
       set_option(options, :input)
 
@@ -102,8 +102,10 @@ end
 def validate_options options
   errors = []
 
-  if not File.exists?(options[:input])
-    errors << 'Path specified in --input does not exist.'
+  if options[:input]
+    if not File.exists?(options[:input])
+      errors << 'Path specified in --input does not exist.'
+    end
   end
 
   if options[:split]
