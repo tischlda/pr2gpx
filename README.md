@@ -26,9 +26,15 @@ Installing
 
 First make sure you have Ruby >= 1.9 running.
 
-Then install pr2gpx:
+
+Then install pr2gpx. To install the latest version from [Ruby Gems](http://rubygems.org/gems/pr2gpx):
 
     gem install pr2gpx
+	
+
+To install it from a .gem-file (replace x.x.x to match the filename):
+
+	gem install pr2gpx-x.x.x.gem
 
 
 Using
